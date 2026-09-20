@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mi recetario</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF2EA;--surface:#FCFDFA;--surface2:#E1E8DC;--ink:#14231B;--muted:#5F7166;--line:#D3DDCC;
+  --accent:#D93A24;--danger:#B3261E;--mark:#F6E27A;
+  --serif:'Young Serif',Georgia,'Times New Roman',serif;
+  --sans:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#101812;--surface:#182219;--surface2:#212E24;--ink:#EAF1E6;--muted:#9AAEA0;--line:#2B3A2F;--mark:#6B5E14;color-scheme:dark}
+}
+:root[data-theme="dark"]{--bg:#101812;--surface:#182219;--surface2:#212E24;--ink:#EAF1E6;--muted:#9AAEA0;--line:#2B3A2F;--mark:#6B5E14;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-tap-highlight-color:transparent}
+.app{max-width:760px;margin:0 auto;padding:0 16px 130px}
+h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;line-height:1.2}
+h1{font-size:1.6rem}
+h2{font-size:1.2rem;margin:26px 0 10px}
+h3{font-size:1rem}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.grow{flex:1}
+.hint{color:var(--muted);font-size:.9rem;margin:6px 0 10px}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);display:flex;align-items:center;gap:10px;padding:12px 0 10px}
+.icon-btn{width:44px;height:44px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:1.1rem;cursor:pointer;font-family:inherit;padding:0}
+
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px}
+textarea{resize:vertical;line-height:1.45}
+input[type=color]{padding:3px;height:44px;width:60px;flex:none}
+select{width:auto}
+label.l{display:block;font-weight:600;font-size:.92rem;margin:16px 0 6px}
+.row{display:flex;gap:10px;align-items:center}
+.row>*{min-width:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tri{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:8px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 18px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 45%,var(--line))}
+.btn.armed{background:var(--danger);color:#fff;border-color:var(--danger)}
+.btn.sm{min-height:38px;padding:0 13px;font-size:.9rem}
+.btn.block{width:100%}
+
+.tools{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:8px 14px;font:inherit;font-size:.9rem;font-weight:500;cursor:pointer}
+.chip .n{font-size:.78rem;color:var(--muted);font-weight:600}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.on .n{color:inherit;opacity:.7}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:12px}
+.card{position:relative;display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:20px 20px 20px 6px;background:color-mix(in srgb,var(--c) 20%,var(--surface));border:1.5px solid color-mix(in srgb,var(--c) 32%,var(--surface));cursor:pointer;min-height:170px}
+.card .ico{font-size:2.3rem;line-height:1}
+.card h3{font-size:1.05rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card .meta{margin-top:auto;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.82rem;color:var(--muted);font-weight:500}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:6px}
+.card .fav{position:absolute;top:8px;right:8px;width:38px;height:38px;border:0;background:transparent;font-size:1.3rem;color:var(--muted);cursor:pointer;border-radius:50%}
+.card .fav.on{color:var(--accent)}
+.grid.list{grid-template-columns:1fr}
+.grid.list .card{flex-direction:row;align-items:center;min-height:0;padding:12px 14px;border-radius:16px 16px 16px 6px}
+.grid.list .card .meta{margin-top:4px}
+.grid.list .card .tx{flex:1;padding-right:34px}
+
+.empty{text-align:center;padding:48px 12px}
+.empty .big{font-size:3.4rem}
+.empty h2{margin:12px 0 6px}
+.empty p{color:var(--muted);margin-bottom:18px}
+.empty .row{justify-content:center;flex-wrap:wrap}
+
+.fab{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:30;display:inline-flex;align-items:center;gap:8px;height:54px;padding:0 22px;border-radius:99px;background:var(--accent);color:#fff;font-weight:700;text-decoration:none;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+
+.hero{display:flex;flex-direction:column;gap:12px;padding:8px 0 4px}
+.bigico{width:84px;height:84px;display:grid;place-items:center;font-size:2.8rem;border-radius:26px 26px 26px 8px;background:color-mix(in srgb,var(--c) 24%,var(--surface));border:1.5px solid color-mix(in srgb,var(--c) 36%,var(--surface))}
+.hero h1{font-size:2rem}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:inline-flex;align-items:center;padding:5px 12px;border-radius:99px;background:var(--surface);border:1px solid var(--line);font-size:.86rem;font-weight:500}
+.pill.soft{color:var(--muted)}
+
+.scale{margin-top:18px;padding:14px;border-radius:18px;background:var(--surface);border:1.5px solid var(--line)}
+.srow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.srow .lbl{font-weight:600}
+.stepper{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:12px;overflow:hidden}
+.stepper button{width:44px;height:44px;border:0;background:var(--surface2);color:var(--ink);font-size:1.3rem;cursor:pointer;font-family:inherit}
+.stepper b{min-width:54px;text-align:center;font-size:1.1rem}
+.qk{display:flex;gap:6px;margin-left:auto}
+.qk button{height:44px;padding:0 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+details.have{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+details summary{cursor:pointer;font-weight:600;min-height:32px;display:flex;align-items:center}
+.hv{display:grid;grid-template-columns:1fr 92px auto;gap:8px;align-items:center;margin:8px 0}
+.hv small{display:block;color:var(--muted)}
+.hv em{font-style:normal;color:var(--muted);min-width:34px;font-size:.9rem}
+.info{margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--mark);font-size:.92rem}
+
+.ings{list-style:none;margin:0;padding:0}
+.ings li{display:flex;gap:12px;align-items:flex-start;padding:11px 8px;border-bottom:1px dashed var(--line);cursor:pointer;border-radius:8px}
+.ings li.head{cursor:default;font-family:var(--serif);padding-top:18px;border-bottom:0}
+.ings .cb{flex:none;width:22px;height:22px;margin-top:1px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;color:#fff}
+.ings li.done .cb{background:var(--accent);border-color:var(--accent)}
+.ings li.done .cb::after{content:"✓"}
+.ings li.done .tx{opacity:.5;text-decoration:line-through}
+.ings li.lim{background:var(--mark)}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.steps li{display:flex;gap:14px;padding:14px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);cursor:pointer}
+.steps .nm{flex:none;width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:700;font-size:.9rem}
+.steps li.done{opacity:.5}
+.steps li.done .tx{text-decoration:line-through}
+.note{padding:14px;border-radius:14px;background:var(--surface2);white-space:pre-wrap}
+
+.seg{display:flex;gap:4px;padding:4px;background:var(--surface2);border-radius:14px;margin:6px 0 14px}
+.seg button{flex:1;min-height:42px;border:0;background:transparent;border-radius:10px;font:inherit;font-weight:600;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--surface);color:var(--ink)}
+.banner{padding:12px 14px;border-radius:12px;background:var(--mark);margin:6px 0 4px;font-size:.92rem}
+
+.sws{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:44px;height:44px;border-radius:50%;border:3px solid var(--surface);box-shadow:0 0 0 1.5px var(--line);cursor:pointer}
+.sw.on{box-shadow:0 0 0 3px var(--ink)}
+.opt{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px dashed var(--line)}
+.opt small{display:block;color:var(--muted)}
+.switch{flex:none;width:52px;height:30px;border-radius:99px;border:0;background:var(--surface2);position:relative;cursor:pointer}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .15s}
+.switch.on{background:var(--accent)}
+.switch.on::after{transform:translateX(22px)}
+details.cat{border:1.5px solid var(--line);border-radius:14px;background:var(--surface);padding:4px 14px;margin-bottom:8px}
+details.cat summary .cnt{margin-left:auto;color:var(--muted);font-weight:500;font-size:.85rem}
+.cbody{padding:6px 0 14px}
+#toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:99px;font-weight:600;font-size:.92rem;max-width:90vw;text-align:center;transition:opacity .2s,transform .2s;z-index:50}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const KEY='recetario.v1';
+
+/* ================= Datos por defecto ================= */
+const DEF_CATS=[
+ {id:'desayunos',name:'Desayunos',emoji:'🥞',color:'#E0A030',kw:'desayuno,tostada,pancake,panqueque,tortita,granola,porridge,waffle,gofre,huevos revueltos,overnight,brunch'},
+ {id:'snacks',name:'Snacks y tapas',emoji:'🥨',color:'#C77B3B',kw:'snack,aperitivo,tapa,dip,hummus,nachos,croqueta,bruschetta,canape,palomitas,chips,bocadillo,sandwich,wrap'},
+ {id:'ensaladas',name:'Ensaladas',emoji:'🥗',color:'#5E9E4A',kw:'ensalada,lechuga,rucula,salad,bowl,tabule'},
+ {id:'sopas',name:'Sopas y cremas',emoji:'🍲',color:'#C4683A',kw:'sopa,crema de,caldo,gazpacho,salmorejo,puchero,cocido,consome,soup,ramen,velute'},
+ {id:'pastas',name:'Pastas y arroces',emoji:'🍝',color:'#D9A441',kw:'pasta,espagueti,spaghetti,macarron,penne,tallarin,lasana,lasagna,fideo,ravioli,noqui,gnocchi,arroz,risotto,paella,noodles,fettuccine,carbonara'},
+ {id:'carnes',name:'Carnes',emoji:'🥩',color:'#B5443A',kw:'pollo,ternera,cerdo,carne,filete,bistec,solomillo,chuleta,hamburguesa,albondiga,pavo,cordero,costilla,bacon,panceta,jamon,chorizo,salchicha,chicken,beef,pork,muslo,pechuga'},
+ {id:'pescados',name:'Pescados y mariscos',emoji:'🐟',color:'#3F7FA6',kw:'pescado,salmon,atun,merluza,bacalao,gamba,camaron,langostino,marisco,mejillon,pulpo,calamar,sardina,fish,shrimp,dorada,lubina,trucha,sushi'},
+ {id:'vegetariano',name:'Vegetariano',emoji:'🥦',color:'#6B8F3A',kw:'vegetariano,vegano,vegana,tofu,lentejas,garbanzos,verdura,berenjena,calabacin,brocoli,coliflor,champinon,seitan,tempeh,falafel,legumbre,frijoles'},
+ {id:'postres',name:'Postres',emoji:'🍰',color:'#C2578B',kw:'postre,tarta,pastel,bizcocho,brownie,galleta,helado,flan,mousse,natilla,cheesecake,cupcake,chocolate,cacao,caramelo,dulce,vainilla,tiramisu,cookie,muffin,magdalena,donut,gelatina,coulant,crema pastelera,pepa,alfajor,membrillo,budin'},
+ {id:'bebidas',name:'Bebidas',emoji:'🥤',color:'#3AA0A0',kw:'bebida,batido,smoothie,cafe,limonada,cocktail,coctel,mojito,zumo,jugo,licuado,sangria,margarita,chai,latte,matcha,te verde,te negro,infusion'},
+ {id:'panaderia',name:'Panadería y masas',emoji:'🍞',color:'#A8743F',kw:'focaccia,pizza,empanada,hojaldre,levadura,pan de,panecillo,bagel,brioche,masa madre,masa,pan casero,baguette'},
+ {id:'salsas',name:'Salsas y aderezos',emoji:'🫙',color:'#8C5A9E',kw:'salsa,aderezo,vinagreta,mayonesa,pesto,guacamole,chimichurri,alino,sofrito,mermelada,dressing,alioli,bechamel,ketchup,marinada,chutney'},
+ {id:'otros',name:'Otros',emoji:'📖',color:'#7F8C82',kw:''}
+];
+const KW_MIG=[['desayunos','desayuno,tostada,pancake,panqueque,tortita,granola,avena,porridge,waffle,gofre,huevos revueltos,overnight,brunch','desayuno,tostada,pancake,panqueque,tortita,granola,porridge,waffle,gofre,huevos revueltos,overnight,brunch'],['postres','postre,tarta,pastel,bizcocho,brownie,galleta,helado,flan,mousse,natilla,cheesecake,cupcake,chocolate,cacao,caramelo,dulce,vainilla,tiramisu,cookie,muffin,magdalena,donut,gelatina,coulant,crema pastelera','postre,tarta,pastel,bizcocho,brownie,galleta,helado,flan,mousse,natilla,cheesecake,cupcake,chocolate,cacao,caramelo,dulce,vainilla,tiramisu,cookie,muffin,magdalena,donut,gelatina,coulant,crema pastelera,pepa,alfajor,membrillo,budin']];
+const DEF_SET={theme:'auto',accent:'#D93A24',fontSize:1,layout:'grid',fractions:true,autoCat:true};
+const ACCENTS=[['#D93A24','Chile'],['#4F7A1E','Oliva'],['#8E2A6B','Ciruela'],['#1F6A99','Arándano'],['#A66A00','Mostaza'],['#2E3A33','Grafito']];
+let db=null,memOnly=false;
+
+function load(){
+  let d=null;
+  try{d=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+  if(!d||typeof d!=='object')d={};
+  db={
+    recipes:Array.isArray(d.recipes)?d.recipes:[],
+    cats:Array.isArray(d.cats)&&d.cats.length?d.cats:JSON.parse(JSON.stringify(DEF_CATS)),
+    settings:Object.assign({},DEF_SET,d.settings||{}),
+    seeded:!!d.seeded
+  };
+  KW_MIG.forEach(([id,o,n])=>{const c=db.cats.find(x=>x.id===id);if(c&&c.kw===o)c.kw=n});
+  if(!db.cats.some(c=>c.id==='otros'))db.cats.push(JSON.parse(JSON.stringify(DEF_CATS[DEF_CATS.length-1])));
+  if(!db.seeded){
+    if(!db.recipes.some(r=>r.id==='seed-pepas')){
+      const p=parseRecipeText(SEED_TEXT);p.emoji='🍪';
+      db.recipes.push(makeRecipe(p,{id:'seed-pepas'}));
+    }
+    db.seeded=true;save();
+  }
+}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(db))}
+  catch(e){if(!memOnly){memOnly=true;toast('Tu navegador no deja guardar: los datos se perderán al cerrar')}}
+}
+const catOf=id=>db.cats.find(c=>c.id===id)||db.cats.find(c=>c.id==='otros');
+
+/* ================= Categorización automática ================= */
+const reCache=new Map();
+function kwRegs(c){
+  const key=c.kw||'';
+  if(reCache.has(key))return reCache.get(key);
+  const arr=key.split(',').map(k=>norm(k).trim()).filter(Boolean)
+    .map(k=>new RegExp('(?:^|[^a-z0-9])'+k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?:s|es)?(?![a-z0-9])'));
+  reCache.set(key,arr);
+  return arr;
+}
+function categorize(title,ingLines){
+  const t=' '+norm(title||'')+' ';
+  const body=' '+norm((ingLines||[]).join(' \n '))+' ';
+  let best='otros',bs=0;
+  for(const c of db.cats){
+    if(c.id==='otros')continue;
+    let s=0;
+    for(const re of kwRegs(c)){if(re.test(t))s+=3;if(re.test(body))s+=1}
+    if(s>bs){bs=s;best=c.id}
+  }
+  return best;
+}
+
+/* ================= Ingredientes: lectura y escalado ================= */
+const UNITS={
+ g:{s:'g',p:'g',a:['g','gr','grs','gramo','gramos','gram','grams']},
+ kg:{s:'kg',p:'kg',a:['kg','kgs','kilo','kilos','kilogramo','kilogramos']},
+ ml:{s:'ml',p:'ml',a:['ml','mililitro','mililitros']},
+ l:{s:'l',p:'l',a:['l','lt','litro','litros','liter','liters']},
+ cda:{s:'cucharada',p:'cucharadas',a:['cda','cdas','cucharada','cucharadas','tbsp','tablespoon','tablespoons']},
+ cdta:{s:'cucharadita',p:'cucharaditas',a:['cdta','cdtas','cucharadita','cucharaditas','tsp','teaspoon','teaspoons']},
+ taza:{s:'taza',p:'tazas',a:['taza','tazas','cup','cups']},
+ vaso:{s:'vaso',p:'vasos',a:['vaso','vasos']},
+ diente:{s:'diente',p:'dientes',a:['diente','dientes','clove','cloves']},
+ pizca:{s:'pizca',p:'pizcas',a:['pizca','pizcas','pinch']},
+ lata:{s:'lata',p:'latas',a:['lata','latas','can','cans']},
+ rebanada:{s:'rebanada',p:'rebanadas',a:['rebanada','rebanadas','slice','slices']},
+ loncha:{s:'loncha',p:'lonchas',a:['loncha','lonchas']},
+ rama:{s:'rama',p:'ramas',a:['rama','ramas','ramita','ramitas']},
+ hoja:{s:'hoja',p:'hojas',a:['hoja','hojas']},
+ paquete:{s:'paquete',p:'paquetes',a:['paquete','paquetes']},
+ sobre:{s:'sobre',p:'sobres',a:['sobre','sobres']},
+ puñado:{s:'puñado',p:'puñados',a:['punado','punados']},
+ trozo:{s:'trozo',p:'trozos',a:['trozo','trozos']},
+ gota:{s:'gota',p:'gotas',a:['gota','gotas']},
+ chorrito:{s:'chorrito',p:'chorritos',a:['chorrito','chorritos']},
+ oz:{s:'oz',p:'oz',a:['oz','onza','onzas','ounce','ounces']},
+ lb:{s:'lb',p:'lb',a:['lb','lbs','libra','libras','pound','pounds']}
+};
+const UMAP={};
+Object.keys(UNITS).forEach(k=>UNITS[k].a.forEach(a=>{UMAP[a]=k}));
+const WORDQ={un:1,una:1,uno:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,media:.5,medio:.5,one:1,two:2,three:3,half:.5};
+const VF={'½':.5,'¼':.25,'¾':.75,'⅓':1/3,'⅔':2/3,'⅛':.125,'⅜':.375,'⅝':.625,'⅞':.875};
+const num=s=>parseFloat(String(s).replace(',','.'));
+
+function takeQty(s){
+  s=String(s).trim();
+  let m;
+  if((m=s.match(/^(\d+)\s+(\d+)\s*\/\s*(\d+)(?!\d)/))&&+m[3])return{q:+m[1]+(+m[2])/(+m[3]),rest:s.slice(m[0].length)};
+  if((m=s.match(/^(\d+)\s*([½¼¾⅓⅔⅛⅜⅝⅞])/)))return{q:+m[1]+VF[m[2]],rest:s.slice(m[0].length)};
+  if((m=s.match(/^([½¼¾⅓⅔⅛⅜⅝⅞])/)))return{q:VF[m[1]],rest:s.slice(1)};
+  if((m=s.match(/^(\d+)\s*\/\s*(\d+)(?!\d)/))&&+m[2])return{q:(+m[1])/(+m[2]),rest:s.slice(m[0].length)};
+  if((m=s.match(/^(\d+(?:[.,]\d+)?)\s*(?:-|–|a|o)\s*\d+(?:[.,]\d+)?(?!\d)/i)))return{q:num(m[1]),rest:s.slice(m[0].length)};
+  if((m=s.match(/^(\d+(?:[.,]\d+)?)/)))return{q:num(m[1]),rest:s.slice(m[0].length)};
+  if((m=s.match(/^(un|una|uno|dos|tres|cuatro|cinco|seis|media|medio|one|two|three|half)(?=\s)/i))){
+    const rest=s.slice(m[0].length);
+    if(/^\s*(poco|poca|toque)\b/i.test(rest))return null;
+    return{q:WORDQ[m[1].toLowerCase()],rest};
+  }
+  return null;
+}
+function parseIngredient(line){
+  const raw=String(line).trim();
+  if(/:$/.test(raw)&&!/\d/.test(raw))return{head:true,n:raw.replace(/:$/,'').trim(),raw,q:null,u:''};
+  const s=raw.replace(/^[\s\-–•*·▪◦○●◯■□✔✓☐▢]+/u,'').trim();
+  let q=null,u='',n=s;
+  const t=takeQty(s);
+  if(t){
+    let rest=t.rest.trim();
+    const m=rest.match(/^([A-Za-zÁÉÍÓÚÜáéíóúüñÑ]+)\.?(?=[\s,(]|$)/);
+    if(m&&UMAP[norm(m[1])]){u=UMAP[norm(m[1])];rest=rest.slice(m[0].length).trim()}
+    rest=rest.replace(/^(?:soperas?|colmadas?|rasas?)\s+/i,'').replace(/^(?:de|of)\s+/i,'').trim();
+    if(rest){q=t.q;n=rest}else{u=''}
+  }
+  return{q,u,n,raw};
+}
+function convert(q,u){
+  if(u==='g'&&q>=1000)return[q/1000,'kg'];
+  if(u==='kg'&&q<1)return[q*1000,'g'];
+  if(u==='ml'&&q>=1000)return[q/1000,'l'];
+  if(u==='l'&&q<1)return[q*1000,'ml'];
+  return[q,u];
+}
+function niceRound(q,u){
+  if(u==='g'||u==='ml'){
+    if(q<10)return Math.round(q*10)/10;
+    if(q<50)return Math.round(q);
+    return Math.round(q/5)*5;
+  }
+  return q;
+}
+function dec(q){
+  const d=q>=10?10:100;
+  return String(Math.round(q*d)/d).replace('.',',');
+}
+const FR=[[0,''],[.125,'⅛'],[.25,'¼'],[1/3,'⅓'],[.5,'½'],[2/3,'⅔'],[.75,'¾'],[1,'']];
+function frac(q){
+  let w=Math.floor(q+1e-9);
+  const r=q-w;
+  let best=FR[0],bd=9;
+  for(const x of FR){const d=Math.abs(r-x[0]);if(d<bd){bd=d;best=x}}
+  if(bd>0.04)return dec(q);
+  if(best[0]===1){w+=1;best=FR[0]}
+  if(w===0&&best[1]==='')return'⅛';
+  return(w?String(w):'')+(w&&best[1]?' ':'')+best[1];
+}
+function fmtQty(q,u){
+  if(u==='g'||u==='ml'||u==='kg'||u==='l'||q>=20||!db.settings.fractions)return dec(q);
+  return frac(q);
+}
+function ingParts(ing,f){
+  if(ing.q==null)return{qty:'',name:ing.n||ing.raw,de:false};
+  let q=ing.q*f,u=ing.u;
+  if(f!==1){const c=convert(q,u);q=niceRound(c[0],c[1]);u=c[1]}
+  const U=u&&UNITS[u];
+  const label=U?(q>1.0001?U.p:U.s):'';
+  return{qty:(fmtQty(q,u)+(label?' '+label:'')).trim(),name:ing.n,de:!!label};
+}
+function fmtServ(n){return String(Math.round(n*10)/10).replace('.',',')}
+
+/* ================= Lectura de texto pegado (TikTok, Reels, blogs…) ================= */
+const EMO=/[\p{Extended_Pictographic}\uFE0F\u200D\u20E3]/gu;
+const HEAD_ING=/^(?:ingredientes?|ingredients?|lo que necesitas|vas a necesitar|necesitas)(?:\s*\([^)]*\)|\s+(?:para|de|del)\b[^:：]{0,60})?(?:\s*[:：\-–]\s*(.*))?$/i;
+const HEAD_STEP=/^(?:preparaci[oó]n|elaboraci[oó]n|instrucciones|pasos?|procedimiento|modo de preparaci[oó]n|paso a paso|directions|instructions|method|steps)(?:\s+(?:de|del|para)\b[^:：]{0,60})?(?:\s*[:：\-–]\s*(.*))?$/i;
+const HEAD_NOTE=/^(?:notas?(?:\s+adicionales)?(?:\s+para\s+tener\s+en\s+cuenta)?|consejos|tips|trucos|recomendaciones)(?:\s*[:：\-–]\s*(.*))?$/i;
+const PROMPT=/^["“']?\s*(?:act[uú]a|eres|quiero que|a continuaci[oó]n|act as|you are)/i;
+const META=/^(?:listo|rinde|rendimiento|para \d|tiempo|porciones|raciones|serves|yield|duraci[oó]n)/i;
+const QTY_START=/^[\s\-–•*·▪◦✔✓]*(?:\d|[½¼¾⅓⅔⅛]|(?:un|una|uno|dos|tres|cuatro|cinco|media|medio)\s)/i;
+const NUM_STEP=/^\s*(?:\d+\s*[.)]\s+\S|\d+\s*[\-–:]\s*\p{L})/u;
+const NUM_PREFIX=/^\s*(?:\d+\s*[.)]|\d+\s*[\-–:](?=\s*\D))\s*/;
+
+function splitList(s,force){
+  let parts=[s];
+  if(/[;•·]/.test(s))parts=s.split(/[;•·]/);
+  else if(force&&s.includes(','))parts=s.split(',');
+  else{
+    const c=s.split(',');
+    if(c.length>=3&&c.filter(p=>QTY_START.test(p.trim())).length>=2)parts=c;
+  }
+  return parts.map(x=>x.trim().replace(/^[-–\s]+/,'').replace(/[.,;\s]+$/,'')).filter(Boolean);
+}
+function splitSteps(s){
+  const str=s.replace(NUM_PREFIX,'').replace(/^\s*[-–•·]\s*/,'').trim();
+  if(!str)return[];
+  const parts=str.split(/\s+(?=\d+\s*[.)]\s+\S)/);
+  if(parts.length>1)return parts.map(p=>p.replace(NUM_PREFIX,'').trim()).filter(Boolean);
+  if(NUM_STEP.test(s))return[str];
+  const sents=str.match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g);
+  if(sents&&sents.length>1&&(sents.length>=3||str.length>140))return sents.map(x=>x.trim()).filter(Boolean);
+  return[str];
+}
+function parseRecipeText(text){
+  let t=String(text).replace(/\r/g,'');
+  const tags=[...new Set((t.match(/#[\p{L}\p{N}_]+/gu)||[]).map(h=>h.slice(1).toLowerCase()))].slice(0,8);
+  const source=(t.match(/https?:\/\/\S+/)||[''])[0];
+  t=t.replace(/#[\p{L}\p{N}_]+/gu,' ').replace(/https?:\/\/\S+/g,' ').replace(/@\w+/g,' ');
+  t=t.replace(/([^\n])\s*\b(ingredientes?|ingredients?)\s*:/gi,'$1\n$2:')
+     .replace(/([^\n])\s*\b(preparaci[oó]n|elaboraci[oó]n|instrucciones|procedimiento|modo de preparaci[oó]n|directions|instructions|method)\s*:/gi,'$1\n$2:');
+  const lines=t.split('\n')
+    .map(l=>l.replace(EMO,'').replace(/\*+/g,'').replace(/[ \t]+/g,' ').trim().replace(/^[○●◯■□▪◦•·]+\s*/,''))
+    .filter(l=>l&&!/^[-–—_=~.•·]+$/.test(l));
+  let mode=null;
+  let pre=[];const ingL=[],stepL=[],noteL=[];
+  let numbered=0;
+  for(let idx=0;idx<lines.length;idx++){
+    const line=lines[idx];let m;
+    if((m=line.match(HEAD_ING))){mode='ing';if(m[1])ingL.push(...splitList(m[1],true));continue}
+    if((m=line.match(HEAD_STEP))){mode='step';if(m[1])stepL.push(...splitSteps(m[1]));continue}
+    if((m=line.match(HEAD_NOTE))&&mode){mode='notes';if(m[1])noteL.push(m[1]);continue}
+    if(mode==='notes'){noteL.push(line);continue}
+    if(mode==='ing'){
+      if(NUM_STEP.test(line)||(line.length>90&&/[.!?]$/.test(line))){mode='step';stepL.push(...splitSteps(line))}
+      else ingL.push(...splitList(line));
+    }else if(mode==='step'){
+      if(META.test(line)&&line.length<70&&!NUM_STEP.test(line))continue;
+      if(NUM_STEP.test(line)){numbered++;stepL.push(...splitSteps(line));continue}
+      if(numbered>=2){
+        if(idx===lines.length-1)noteL.push(line);
+        else if(stepL.length)stepL[stepL.length-1]+=' '+line;
+        else stepL.push(...splitSteps(line));
+        continue;
+      }
+      stepL.push(...splitSteps(line));
+    }else pre.push(line);
+  }
+  if(!ingL.length&&stepL.length&&pre.length>2){
+    const cand=pre.slice(1).filter(l=>l.length<=70&&!/[.!?]$/.test(l)&&!META.test(l)&&!PROMPT.test(l));
+    if(cand.length>=3){ingL.push(...cand);pre=pre.filter((l,i)=>i===0||!cand.includes(l))}
+  }
+  let title='',notes='';
+  if(!ingL.length&&!stepL.length){
+    const rest=[...pre];
+    if(rest.length&&!NUM_STEP.test(rest[0])&&!QTY_START.test(rest[0]))title=rest.shift();
+    for(const l of rest){
+      if(NUM_STEP.test(l))stepL.push(l.replace(NUM_PREFIX,''));
+      else if(QTY_START.test(l)&&l.length<=70&&!/[.!?]$/.test(l))ingL.push(l);
+      else stepL.push(...splitSteps(l));
+    }
+  }else{
+    const pl=pre.length&&PROMPT.test(pre[0]);
+    const qm=pre.join(' ').match(/receta de\s+['"“‘]([^'"”’]{3,90})['"”’]/i);
+    title=qm?qm[1].trim():(pl?'':pre[0]||'');
+    notes=pl?'':pre.slice(qm?0:1).filter(l=>!META.test(l)).join(' ');
+  }
+  notes=[notes,...noteL].filter(Boolean).join('\n');
+  title=title.replace(/[\s.:;,\-–]+$/,'').slice(0,90);
+  if(title.length>3&&title===title.toUpperCase()&&title!==title.toLowerCase())title=title.charAt(0)+title.slice(1).toLowerCase();
+  const all=lines.join(' \n ');
+  let servings=null,yl='porciones',m=all.match(/(\d{1,3})(?:\s*(?:-|–|a|o)\s*\d{1,3})?\s*(porciones?|raciones?|personas?|comensales|servings?)/i);
+  if(m){servings=+m[1];if(/personas?|comensales/i.test(m[2]))yl='personas'}
+  else if((m=all.match(/(?:rinde|rendimiento|salen|hacer|tanda|produce|makes|yield)[^\n\d]{0,40}?(\d{1,3})(?:\s*(?:-|–|a|o)\s*\d{1,3})?\s*(unidades|piezas|galletas|pepas)/i))){servings=+m[1];yl=/piezas/i.test(m[2])?'piezas':'unidades'}
+  const allT=all.replace(/cada\s+\d+(?:[.,]\d+)?\s*(?:h|hr|hrs|horas?|hours?|min|mins|minutos?)\b/gi,'');
+  let mins=0;
+  for(const x of allT.matchAll(/(\d+(?:[.,]\d+)?)\s*(?:h|hr|hrs|horas?|hours?)\b/gi))mins+=num(x[1])*60;
+  for(const x of allT.matchAll(/(\d+)\s*(?:min|mins|minutos?|minutes?)\b/gi))mins+=+x[1];
+  const time=mins>0&&mins<=1440?Math.round(mins):null;
+  if(/sin\s+gluten|sin\s+tacc|gluten[\s-]?free/i.test(all)&&!tags.includes('sin gluten'))tags.push('sin gluten');
+  return{title,servings,yl,time,ingredients:ingL,steps:stepL,tags,source,notes};
+}
+function makeRecipe(p,ex){
+  ex=ex||{};
+  const auto=ex.catAuto!==undefined?ex.catAuto:db.settings.autoCat;
+  const ings=(p.ingredients||[]).map(parseIngredient);
+  return{
+    id:ex.id||uid(),title:p.title||'Sin título',emoji:p.emoji||'',
+    cat:ex.cat||(auto?categorize(p.title,p.ingredients):'otros'),catAuto:auto,
+    servings:p.servings||4,yl:p.yl||'porciones',time:p.time||null,ingredients:ings,steps:p.steps||[],
+    tags:p.tags||[],notes:p.notes||'',source:p.source||'',fav:!!ex.fav,created:ex.created||Date.now()
+  };
+}
+const lines=s=>String(s).split('\n').map(x=>x.trim()).filter(Boolean);
+
+const SAMPLE_1=`Pasta cremosa de limón 🍋🍝
+Ingredientes:
+- 250 g espaguetis
+- 1 limón (ralladura y jugo)
+- 200 ml nata para cocinar
+- 2 dientes de ajo
+- 30 g queso parmesano
+- Sal y pimienta al gusto
+Preparación:
+1. Cuece la pasta en agua con sal según el paquete.
+2. Sofríe el ajo, añade la nata y la ralladura de limón.
+3. Mezcla la pasta con la salsa, añade el jugo y el parmesano.
+Listo en 20 min, 2 raciones #pasta #recetafacil`;
+const SAMPLE_2=`Brownies fáciles 🍫
+Ingredientes:
+- 200 g chocolate negro
+- 150 g mantequilla
+- 3 huevos
+- 200 g azúcar
+- 100 g harina
+- 1 pizca de sal
+Preparación:
+1. Derrite el chocolate con la mantequilla al baño maría.
+2. Bate los huevos con el azúcar y mézclalos con el chocolate.
+3. Incorpora la harina y la sal.
+4. Hornea a 180 °C durante 25 minutos.
+Rinde 9 porciones #postre`;
+
+const SEED_TEXT=`Pepas rústicas de maíz y avena (Sin Gluten)
+Rinde 30-40 unidades #galletas
+Ingredientes:
+- 200 g de Avena (certificada sin TACC)
+- 300 g de Harina PAN (harina de maíz amarillo precocida)
+- 160 g de Azúcar mascabo
+- 120 ml de Aceite
+- 4 Huevos
+- 8 g de Polvo de hornear (sin TACC)
+- 300 g de Dulce de membrillo (o pasta de maní/avellanas) para rellenar
+Paso a paso:
+1. Refinar: Procesar o licuar la avena en seco hasta que quede como una harina rústica. Mezclarla con la harina PAN y el polvo de hornear.
+2. Húmedos: Batir los huevos con el aceite y el azúcar mascabo hasta integrar bien y que el azúcar comience a disolverse.
+3. Unir: Volcar los secos sobre los húmedos y amasar. (Nota: la harina PAN absorbe mucha humedad; si es necesario, se ajusta con un chorrito de agua o leche).
+4. Frío (Clave): Llevar la masa a la heladera por 20 a 30 minutos para que el aceite solidifique y las galletas no se desarmen en el horno.
+5. Armado: Formar bolitas, aplastarlas levemente, hacer un hueco en el centro y colocar en una placa aceitada.
+6. Relleno y Cocción: Rellenar con membrillo y hornear a 180°C por 12 a 15 minutos.
+Notas adicionales para tener en cuenta: Las galletas deben enfriarse por completo antes de guardarse en un recipiente hermético para que duren. También se pueden congelar crudas ya armadas.`;
+
+/*__UI__*/
+/* ================= Interfaz ================= */
+const app=$('#app');
+const state={q:'',cat:'all',sort:'recent'};
+let tt;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2600)}
+function reset(){app.onclick=app.oninput=app.onchange=app.onkeydown=null}
+function arm(btn,fn){
+  if(btn.dataset.armed){clearTimeout(+btn.dataset.armed);delete btn.dataset.armed;fn();return}
+  const old=btn.innerHTML;
+  btn.innerHTML='¿Seguro? Toca de nuevo';
+  btn.classList.add('armed');
+  btn.dataset.armed=setTimeout(()=>{btn.innerHTML=old;btn.classList.remove('armed');delete btn.dataset.armed},3200);
+}
+async function copyText(text){
+  try{await navigator.clipboard.writeText(text);return true}catch(e){}
+  try{
+    const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0;top:0';
+    document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();return ok;
+  }catch(e){return false}
+}
+function applyTheme(){
+  const s=db.settings,r=document.documentElement;
+  if(s.theme==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',s.theme);
+  r.style.setProperty('--accent',s.accent);
+  r.style.fontSize=(s.fontSize*100)+'%';
+}
+
+/* ---------- Inicio ---------- */
+function filtered(){
+  const q=norm(state.q.trim());
+  const l=db.recipes.filter(r=>{
+    if(state.cat==='fav'&&!r.fav)return false;
+    if(state.cat!=='all'&&state.cat!=='fav'&&r.cat!==state.cat)return false;
+    if(!q)return true;
+    const hay=norm([r.title,(r.tags||[]).join(' '),r.ingredients.map(i=>i.raw).join(' '),catOf(r.cat).name].join(' '));
+    return q.split(/\s+/).every(w=>hay.includes(w));
+  });
+  if(state.sort==='az')l.sort((a,b)=>a.title.localeCompare(b.title,'es'));
+  else if(state.sort==='fast')l.sort((a,b)=>(a.time||9999)-(b.time||9999));
+  else l.sort((a,b)=>b.created-a.created);
+  return l;
+}
+function cardHTML(r){
+  const c=catOf(r.cat);
+  return `<article class="card" tabindex="0" data-open="${r.id}" style="--c:${esc(c.color)}">
+    <div class="ico">${esc(r.emoji||c.emoji)}</div>
+    <div class="tx"><h3>${esc(r.title)}</h3>
+    <p class="meta"><span><i class="dot"></i>${esc(c.name)}</span>${r.time?`<span>⏱ ${r.time} min</span>`:''}</p></div>
+    <button class="fav ${r.fav?'on':''}" data-fav="${r.id}" aria-label="Marcar favorita">${r.fav?'★':'☆'}</button>
+  </article>`;
+}
+function home(){
+  reset();
+  if(state.cat!=='all'&&state.cat!=='fav'&&!db.cats.some(c=>c.id===state.cat))state.cat='all';
+  app.innerHTML=`<header class="top"><h1>Mi recetario</h1><span class="grow"></span><a class="icon-btn" href="#/settings" aria-label="Ajustes">⚙️</a></header>
+  <div class="tools"><input id="q" type="search" placeholder="Buscar receta, ingrediente o etiqueta" value="${esc(state.q)}" autocomplete="off">
+  <select id="sort" aria-label="Ordenar"><option value="recent">Recientes</option><option value="az">A–Z</option><option value="fast">Más rápidas</option></select></div>
+  <div class="chips" id="chips"></div><div id="list"></div>
+  <a class="fab" href="#/new">＋ Nueva receta</a>`;
+  $('#sort').value=state.sort;
+  drawChips();drawList();
+  app.oninput=e=>{if(e.target.id==='q'){state.q=e.target.value;drawList()}};
+  app.onchange=e=>{if(e.target.id==='sort'){state.sort=e.target.value;drawList()}};
+  app.onclick=e=>{
+    let el;
+    if((el=e.target.closest('[data-fav]'))){
+      const r=db.recipes.find(x=>x.id===el.dataset.fav);
+      if(r){r.fav=!r.fav;save();drawChips();drawList()}
+      return;
+    }
+    if((el=e.target.closest('[data-cat]'))){state.cat=el.dataset.cat;drawChips();drawList();return}
+    if((el=e.target.closest('[data-open]'))){location.hash='#/r/'+el.dataset.open;return}
+    if((el=e.target.closest('[data-a]'))){
+      if(el.dataset.a==='samples'){
+        [SAMPLE_1,SAMPLE_2].forEach(s=>db.recipes.push(makeRecipe(parseRecipeText(s))));
+        save();home();toast('Añadí 2 recetas de ejemplo');
+      }
+    }
+  };
+  app.onkeydown=e=>{
+    if(e.key==='Enter'){const el=e.target.closest('[data-open]');if(el)location.hash='#/r/'+el.dataset.open}
+  };
+}
+function drawChips(){
+  const counts={};
+  db.recipes.forEach(r=>{counts[r.cat]=(counts[r.cat]||0)+1});
+  const favN=db.recipes.filter(r=>r.fav).length;
+  const items=[['all','Todas',db.recipes.length]];
+  if(favN)items.push(['fav','★ Favoritas',favN]);
+  db.cats.forEach(c=>{if(counts[c.id])items.push([c.id,c.emoji+' '+c.name,counts[c.id]])});
+  $('#chips').innerHTML=items.map(([id,l,n])=>`<button class="chip ${state.cat===id?'on':''}" data-cat="${esc(id)}">${esc(l)}<span class="n">${n}</span></button>`).join('');
+}
+function drawList(){
+  const box=$('#list');
+  if(!db.recipes.length){
+    box.innerHTML=`<div class="empty"><div class="big">🍳</div><h2>Tu recetario está vacío</h2>
+    <p>Pega el texto de un vídeo de TikTok o Reels, o escribe una receta a mano. Se categoriza sola.</p>
+    <div class="row"><a class="btn primary" href="#/new">Añadir mi primera receta</a><button class="btn" data-a="samples">Probar con 2 ejemplos</button></div></div>`;
+    return;
+  }
+  const l=filtered();
+  if(!l.length){box.innerHTML=`<div class="empty"><div class="big">🔎</div><h2>No encontré nada</h2><p>Prueba con otra palabra o cambia de categoría.</p></div>`;return}
+  box.innerHTML=`<div class="grid ${db.settings.layout==='list'?'list':''}">${l.map(cardHTML).join('')}</div>`;
+}
+
+/* ---------- Detalle de receta ---------- */
+function detail(id){
+  reset();
+  const r=db.recipes.find(x=>x.id===id);
+  if(!r){location.hash='#/';return}
+  const c=catOf(r.cat),base=r.servings||4,ings=r.ingredients||[],YL=r.yl||'porciones';
+  const S={sv:base,have:{},ingDone:new Set(),stepDone:new Set()};
+  const scalable=ings.map((x,i)=>({x,i})).filter(o=>o.x.q!=null&&!o.x.head);
+  const isUrl=/^https?:\/\//i.test(r.source||'');
+  app.innerHTML=`
+  <header class="top"><a class="icon-btn" href="#/" aria-label="Volver">←</a><span class="grow"></span>
+    <button class="icon-btn" data-a="fav" aria-label="Favorita">${r.fav?'★':'☆'}</button>
+    <button class="icon-btn" data-a="copy" aria-label="Copiar receta">📋</button>
+    <a class="icon-btn" href="#/edit/${r.id}" aria-label="Editar">✏️</a></header>
+  <section class="hero" style="--c:${esc(c.color)}">
+    <div class="bigico">${esc(r.emoji||c.emoji)}</div><h1>${esc(r.title)}</h1>
+    <div class="pills"><span class="pill" style="--c:${esc(c.color)}"><i class="dot"></i>${esc(c.name)}</span>
+    ${r.time?`<span class="pill">⏱ ${r.time} min</span>`:''}
+    ${(r.tags||[]).map(t=>`<span class="pill soft">#${esc(t)}</span>`).join('')}</div>
+  </section>
+  <section class="scale">
+    <div class="srow"><span class="lbl">${YL[0].toUpperCase()+YL.slice(1)}</span>
+      <div class="stepper"><button data-a="dec" aria-label="Menos">−</button><b id="sv"></b><button data-a="inc" aria-label="Más">+</button></div>
+      <div class="qk"><button data-f="0.5">½×</button><button data-f="1">1×</button><button data-f="2">2×</button></div></div>
+    ${scalable.length?`<details class="have"><summary>🧮 No tengo suficiente de algún ingrediente</summary>
+      <p class="hint">Escribe cuánto tienes de lo que te falta. Adapto toda la receta a esa cantidad.</p>
+      ${scalable.map(o=>{const p=ingParts(o.x,1),U=UNITS[o.x.u];return `<label class="hv"><span>${esc(o.x.n)}<small>Receta: ${esc(p.qty)}</small></span><input inputmode="decimal" data-h="${o.i}" placeholder="Tengo"><em>${U?esc(U.p):''}</em></label>`}).join('')}
+    </details>`:''}
+    <div class="info" id="sinfo" hidden></div>
+  </section>
+  <h2>Ingredientes</h2><ul class="ings" id="ingList"></ul>
+  <h2>Preparación</h2>
+  ${r.steps&&r.steps.length?`<ol class="steps">${r.steps.map((s,i)=>`<li data-s="${i}"><span class="nm">${i+1}</span><span class="tx">${esc(s)}</span></li>`).join('')}</ol>`:`<p class="hint">Esta receta todavía no tiene pasos. Puedes añadirlos con el botón de editar.</p>`}
+  ${r.notes?`<h2>Notas</h2><div class="note">${esc(r.notes)}</div>`:''}
+  ${r.source?`<p class="hint" style="margin-top:18px">Fuente: ${isUrl?`<a href="${esc(r.source)}" target="_blank" rel="noopener noreferrer">${esc(r.source)}</a>`:esc(r.source)}</p>`:''}
+  <div style="margin-top:28px"><button class="btn danger block" data-a="del">🗑 Eliminar receta</button></div>`;
+
+  function calc(){
+    const es=Object.entries(S.have).filter(([,v])=>v>0);
+    if(!es.length)return{f:S.sv/base,lim:-1,have:false};
+    let m=Infinity,lim=-1;
+    for(const [i,v] of es){const ratio=v/ings[i].q;if(ratio<m){m=ratio;lim=+i}}
+    return{f:m,lim,have:true};
+  }
+  function paint(){
+    const {f,lim,have}=calc();
+    $('#sv').textContent=fmtServ(base*f);
+    $('#ingList').innerHTML=ings.map((x,i)=>{
+      if(x.head)return `<li class="head">${esc(x.n)}</li>`;
+      const p=ingParts(x,f);
+      return `<li class="${S.ingDone.has(i)?'done ':''}${i===lim?'lim':''}" data-i="${i}"><span class="cb"></span><span class="tx">${p.qty?`<b>${esc(p.qty)}</b> ${p.de?'de ':''}`:''}${esc(p.name)}</span></li>`;
+    }).join('');
+    const info=$('#sinfo');
+    if(have){
+      info.hidden=false;
+      info.innerHTML=`Receta adaptada al <b>${Math.round(f*100)}%</b> (unas ${fmtServ(base*f)} ${YL}). Lo que manda: <b>${esc(ings[lim].n)}</b>.`;
+    }else if(Math.abs(f-1)>1e-9){
+      info.hidden=false;info.textContent='Cantidades ajustadas ×'+fmtServ(f);
+    }else info.hidden=true;
+  }
+  const clearHave=()=>{S.have={};$$('[data-h]').forEach(i=>{i.value=''})};
+  paint();
+
+  app.onclick=e=>{
+    const b=e.target.closest('[data-a],[data-f],[data-i],[data-s]');
+    if(!b)return;
+    const a=b.dataset.a;
+    if(a==='fav'){r.fav=!r.fav;save();b.textContent=r.fav?'★':'☆'}
+    else if(a==='inc'||a==='dec'){clearHave();S.sv=Math.max(1,Math.round(S.sv)+(a==='inc'?1:-1));paint()}
+    else if(b.dataset.f){clearHave();S.sv=base*(+b.dataset.f);paint()}
+    else if(a==='copy'){
+      const {f}=calc();
+      const txt=[r.title,'Para '+fmtServ(base*f)+' '+YL,'','Ingredientes:',
+        ...ings.map(x=>{if(x.head)return x.n+':';const p=ingParts(x,f);return '- '+(p.qty?p.qty+' '+(p.de?'de ':''):'')+p.name}),
+        '','Preparación:',...(r.steps||[]).map((s,i)=>(i+1)+'. '+s)].join('\n');
+      copyText(txt).then(ok=>toast(ok?'Receta copiada':'No pude copiar en este navegador'));
+    }
+    else if(a==='del'){arm(b,()=>{db.recipes=db.recipes.filter(x=>x.id!==r.id);save();location.hash='#/';toast('Receta eliminada')})}
+    else if(b.dataset.i!==undefined){const i=+b.dataset.i;S.ingDone.has(i)?S.ingDone.delete(i):S.ingDone.add(i);b.classList.toggle('done')}
+    else if(b.dataset.s!==undefined){b.classList.toggle('done')}
+  };
+  app.oninput=e=>{
+    const h=e.target.dataset.h;
+    if(h===undefined)return;
+    const t=takeQty(e.target.value);
+    const v=t?t.q:0;
+    if(v>0)S.have[+h]=v;else delete S.have[+h];
+    paint();
+  };
+}
+
+/* ---------- Crear / editar ---------- */
+function editor(id){
+  reset();
+  const ex=id?db.recipes.find(r=>r.id===id):null;
+  if(id&&!ex){location.hash='#/';return}
+  const catOpts=db.cats.map(c=>`<option value="${esc(c.id)}">${esc(c.emoji)} ${esc(c.name)}</option>`).join('');
+  app.innerHTML=`
+  <header class="top"><a class="icon-btn" href="${ex?'#/r/'+ex.id:'#/'}" aria-label="Volver">←</a><h1>${ex?'Editar receta':'Nueva receta'}</h1></header>
+  ${ex?'':`<div class="seg" id="tabs"><button data-t="paste" class="on">📋 Pegar texto</button><button data-t="manual">✍️ A mano</button></div>
+  <section id="paste">
+    <p class="hint">Pega la descripción o los subtítulos de un vídeo de TikTok, Reels o YouTube, un texto de un blog o tus notas. Separo el título, los ingredientes y los pasos.</p>
+    <textarea id="raw" rows="11" placeholder="Pega aquí el texto de la receta…"></textarea>
+    <div class="row" style="margin-top:12px"><button class="btn primary grow" id="analyze">✨ Analizar receta</button><button class="btn" id="sample">Ver ejemplo</button></div>
+  </section>`}
+  <section id="manual" ${ex?'':'hidden'}>
+    <div id="banner" class="banner" hidden></div>
+    <label class="l" for="f-title">Nombre</label>
+    <div class="row"><input id="f-title" placeholder="Ej: Tortilla de patatas"><input id="f-emoji" placeholder="🍳" maxlength="4" style="width:76px;text-align:center;flex:none" aria-label="Emoji"></div>
+    <label class="l" for="f-cat">Categoría</label>
+    <select id="f-cat" style="width:100%"><option value="auto">✨ Automática (según título e ingredientes)</option>${catOpts}</select>
+    <p class="hint" id="cat-hint"></p>
+    <div class="tri"><div><label class="l" for="f-serv">Rinde</label><input id="f-serv" type="number" inputmode="decimal" min="1" step="any" placeholder="4"></div>
+    <div><label class="l" for="f-yl">Unidad</label><select id="f-yl" style="width:100%"><option>porciones</option><option>unidades</option><option>personas</option><option>piezas</option></select></div>
+    <div><label class="l" for="f-time">Minutos</label><input id="f-time" type="number" inputmode="numeric" min="1" placeholder="30"></div></div>
+    <label class="l" for="f-ing">Ingredientes</label>
+    <textarea id="f-ing" rows="8" placeholder="200 g harina&#10;2 huevos&#10;1/2 taza de leche&#10;Sal al gusto"></textarea>
+    <p class="hint" id="ing-hint">Uno por línea. Con cantidad, se adaptan solos. Para separar secciones termina la línea con “:” (por ejemplo, Para la salsa:).</p>
+    <label class="l" for="f-steps">Pasos</label>
+    <textarea id="f-steps" rows="8" placeholder="Un paso por línea"></textarea>
+    <label class="l" for="f-tags">Etiquetas</label>
+    <input id="f-tags" placeholder="fácil, sin horno, cena (separadas por coma)">
+    <label class="l" for="f-notes">Notas</label>
+    <textarea id="f-notes" rows="3" placeholder="Trucos, cambios que hiciste, con qué acompañarla…"></textarea>
+    <label class="l" for="f-src">Fuente o enlace</label>
+    <input id="f-src" placeholder="https://…">
+    <div class="row" style="margin-top:22px"><button class="btn primary grow" id="save">Guardar receta</button><a class="btn" href="${ex?'#/r/'+ex.id:'#/'}">Cancelar</a></div>
+  </section>`;
+  const F=k=>$('#'+k);
+  function hints(){
+    const ls=lines(F('f-ing').value);
+    const ings=ls.map(parseIngredient).filter(i=>!i.head);
+    if(ings.length){
+      const n=ings.filter(i=>i.q!=null).length;
+      F('ing-hint').textContent=`${n} de ${ings.length} ingredientes con cantidad: esos se adaptan solos.`;
+    }
+    F('cat-hint').textContent=F('f-cat').value==='auto'?(()=>{const c=catOf(categorize(F('f-title').value,ls));return 'Sugerida: '+c.emoji+' '+c.name})():'';
+  }
+  function fill(o){
+    F('f-title').value=o.title||'';F('f-emoji').value=o.emoji||'';
+    F('f-serv').value=o.servings||'';F('f-yl').value=o.yl||'porciones';F('f-time').value=o.time||'';
+    F('f-ing').value=(o.ingredients||[]).join('\n');F('f-steps').value=(o.steps||[]).join('\n');
+    F('f-tags').value=(o.tags||[]).join(', ');F('f-notes').value=o.notes||'';F('f-src').value=o.source||'';
+    hints();
+  }
+  function showTab(t){
+    if(!F('tabs'))return;
+    $$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+    F('paste').hidden=t!=='paste';F('manual').hidden=t!=='manual';
+  }
+  F('f-cat').value=ex?(ex.catAuto?'auto':ex.cat):(db.settings.autoCat?'auto':'otros');
+  if(ex)fill({title:ex.title,emoji:ex.emoji,servings:ex.servings,yl:ex.yl,time:ex.time,ingredients:ex.ingredients.map(i=>i.raw),steps:ex.steps,tags:ex.tags,notes:ex.notes,source:ex.source});
+  else hints();
+
+  app.oninput=e=>{if(['f-title','f-ing'].includes(e.target.id))hints()};
+  app.onchange=e=>{if(e.target.id==='f-cat')hints()};
+  app.onclick=e=>{
+    const b=e.target.closest('button');
+    if(!b)return;
+    if(b.dataset.t){showTab(b.dataset.t);return}
+    if(b.id==='sample'){F('raw').value=SAMPLE_1;return}
+    if(b.id==='analyze'){
+      const txt=F('raw').value.trim();
+      if(!txt){toast('Pega primero el texto de la receta');return}
+      const p=parseRecipeText(txt);
+      fill(p);showTab('manual');
+      const bn=F('banner');bn.hidden=false;
+      bn.textContent=p.ingredients.length
+        ?`Detecté ${p.ingredients.length} ingredientes y ${p.steps.length} pasos. Revisa y guarda.`
+        :'No encontré ingredientes claros. Pégalos en el campo de ingredientes, uno por línea.';
+      window.scrollTo(0,0);
+      return;
+    }
+    if(b.id==='save'){
+      const title=F('f-title').value.trim();
+      if(!title){toast('Ponle un nombre a la receta');F('f-title').focus();return}
+      const ingL=lines(F('f-ing').value);
+      const sel=F('f-cat').value,auto=sel==='auto';
+      const p={
+        title,emoji:F('f-emoji').value.trim(),servings:+F('f-serv').value||4,yl:F('f-yl').value,time:+F('f-time').value||null,
+        ingredients:ingL,steps:lines(F('f-steps').value).map(x=>x.replace(NUM_PREFIX,'')),
+        tags:F('f-tags').value.split(',').map(x=>x.trim().replace(/^#/,'')).filter(Boolean),
+        notes:F('f-notes').value.trim(),source:F('f-src').value.trim()
+      };
+      const rec=makeRecipe(p,{id:ex&&ex.id,cat:auto?categorize(title,ingL):sel,catAuto:auto,fav:ex&&ex.fav,created:ex&&ex.created});
+      if(ex)db.recipes[db.recipes.findIndex(r=>r.id===ex.id)]=rec;else db.recipes.push(rec);
+      save();location.hash='#/r/'+rec.id;
+      toast('Receta guardada en '+catOf(rec.cat).name);
+    }
+  };
+}
+
+/* ---------- Ajustes ---------- */
+function settings(openId){
+  reset();
+  const s=db.settings;
+  const seg=(key,opts)=>`<div class="seg" style="margin:6px 0 4px">${opts.map(([v,l])=>`<button data-set="${key}" data-v="${v}" class="${String(s[key])===String(v)?'on':''}">${l}</button>`).join('')}</div>`;
+  const counts={};db.recipes.forEach(r=>{counts[r.cat]=(counts[r.cat]||0)+1});
+  app.innerHTML=`
+  <header class="top"><a class="icon-btn" href="#/" aria-label="Volver">←</a><h1>Ajustes</h1></header>
+  <h2>Apariencia</h2>
+  <label class="l" style="margin-top:0">Tema</label>${seg('theme',[['auto','Automático'],['light','Claro'],['dark','Oscuro']])}
+  <label class="l">Color principal</label>
+  <div class="sws">${ACCENTS.map(([c,n])=>`<button class="sw ${s.accent===c?'on':''}" data-set="accent" data-v="${c}" style="background:${c}" aria-label="${n}"></button>`).join('')}</div>
+  <label class="l">Tamaño de letra</label>${seg('fontSize',[[1,'Normal'],[1.1,'Grande'],[1.2,'Muy grande']])}
+  <label class="l">Vista de recetas</label>${seg('layout',[['grid','Tarjetas'],['list','Lista']])}
+  <div class="opt"><span>Cantidades con fracciones<small>½ taza en vez de 0,5 taza</small></span><button class="switch ${s.fractions?'on':''}" data-a="frac" role="switch" aria-checked="${s.fractions}" aria-label="Fracciones"></button></div>
+
+  <h2>Categorías</h2>
+  <div class="opt" style="padding-top:0"><span>Categorizar automáticamente<small>Al guardar, según título e ingredientes</small></span><button class="switch ${s.autoCat?'on':''}" data-a="autocat" role="switch" aria-checked="${s.autoCat}" aria-label="Categorizar automáticamente"></button></div>
+  <p class="hint">Cada categoría tiene palabras clave. Cámbialas para que la app aprenda tu forma de organizar.</p>
+  <div id="cats">${db.cats.map(c=>`<details class="cat" data-id="${esc(c.id)}" ${openId===c.id?'open':''}>
+    <summary><i class="dot" style="background:${esc(c.color)}"></i><span class="sn">${esc(c.emoji)} ${esc(c.name)}</span><span class="cnt">${counts[c.id]||0}</span></summary>
+    <div class="cbody">
+      <div class="row"><input class="c-emoji" value="${esc(c.emoji)}" maxlength="4" style="width:70px;text-align:center;flex:none" aria-label="Emoji"><input class="c-name" value="${esc(c.name)}" aria-label="Nombre"><input class="c-color" type="color" value="${esc(c.color)}" aria-label="Color"></div>
+      ${c.id==='otros'?'<p class="hint">Aquí caen las recetas que no encajan en ninguna otra categoría.</p>':`<label class="l">Palabras clave (separadas por coma)</label><textarea class="c-kw" rows="3">${esc(c.kw)}</textarea>
+      <button class="btn danger sm" data-a="delcat" style="margin-top:10px">Eliminar categoría</button>`}
+    </div></details>`).join('')}</div>
+  <div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn" data-a="addcat">＋ Nueva categoría</button><button class="btn" data-a="recat">Recategorizar recetas</button></div>
+
+  <h2>Copia de seguridad</h2>
+  <p class="hint">Tus recetas se guardan en este navegador. Copia este texto para llevarlas a otro dispositivo y pégalo allí en “Importar”.</p>
+  <textarea id="exp" rows="4" readonly></textarea>
+  <div class="row" style="margin:10px 0 18px"><button class="btn" data-a="copyexp">Copiar copia de seguridad</button></div>
+  <textarea id="imp" rows="4" placeholder="Pega aquí una copia de seguridad para importarla"></textarea>
+  <div class="row" style="margin:10px 0"><button class="btn primary" data-a="import">Importar recetas</button></div>
+  <div style="margin-top:26px"><button class="btn danger block" data-a="wipe">Borrar todos mis datos</button></div>`;
+  $('#exp').value=JSON.stringify({v:1,recipes:db.recipes,cats:db.cats,settings:db.settings});
+
+  app.onclick=e=>{
+    const b=e.target.closest('button');
+    if(!b)return;
+    if(b.dataset.set){
+      let v=b.dataset.v;if(b.dataset.set==='fontSize')v=+v;
+      db.settings[b.dataset.set]=v;save();applyTheme();
+      const y=window.scrollY;settings();window.scrollTo(0,y);return;
+    }
+    const a=b.dataset.a;
+    if(a==='frac'||a==='autocat'){
+      if(a==='frac')db.settings.fractions=!db.settings.fractions;else db.settings.autoCat=!db.settings.autoCat;
+      save();const y=window.scrollY;settings();window.scrollTo(0,y);
+    }else if(a==='addcat'){
+      const id=uid();
+      db.cats.splice(db.cats.length-1,0,{id,name:'Nueva categoría',emoji:'🍴',color:'#7F8C82',kw:''});
+      save();settings(id);
+    }else if(a==='delcat'){
+      arm(b,()=>{
+        const id=b.closest('.cat').dataset.id;
+        db.recipes.forEach(r=>{if(r.cat===id){r.cat='otros'}});
+        db.cats=db.cats.filter(c=>c.id!==id);save();settings();toast('Categoría eliminada');
+      });
+    }else if(a==='recat'){
+      let n=0;
+      db.recipes.forEach(r=>{if(r.catAuto){const nc=categorize(r.title,r.ingredients.map(i=>i.raw));if(nc!==r.cat){r.cat=nc;n++}}});
+      save();toast(n?`${n} receta${n>1?'s':''} recategorizada${n>1?'s':''}`:'Todo ya estaba bien categorizado');
+    }else if(a==='copyexp'){
+      copyText($('#exp').value).then(ok=>{if(!ok){$('#exp').select()}toast(ok?'Copia de seguridad copiada':'Selecciona el texto y cópialo a mano')});
+    }else if(a==='import'){
+      try{
+        const d=JSON.parse($('#imp').value);
+        if(!d||!Array.isArray(d.recipes))throw new Error('formato');
+        const known=new Set(db.cats.map(c=>c.id));
+        (d.cats||[]).forEach(c=>{if(c&&c.id&&c.name&&!known.has(c.id)){db.cats.push({id:c.id,name:String(c.name),emoji:c.emoji||'🍴',color:c.color||'#7F8C82',kw:c.kw||''})}});
+        db.cats.sort((x,y)=>(x.id==='otros')-(y.id==='otros'));
+        let n=0;
+        d.recipes.forEach(r=>{
+          if(!r||!r.id||!r.title)return;
+          r.ingredients=Array.isArray(r.ingredients)?r.ingredients:[];r.steps=Array.isArray(r.steps)?r.steps:[];
+          if(!db.cats.some(c=>c.id===r.cat))r.cat='otros';
+          const i=db.recipes.findIndex(x=>x.id===r.id);
+          if(i>=0)db.recipes[i]=r;else db.recipes.push(r);
+          n++;
+        });
+        save();settings();toast(`${n} receta${n===1?'':'s'} importada${n===1?'':'s'}`);
+      }catch(err){toast('Ese texto no parece una copia de seguridad válida')}
+    }else if(a==='wipe'){
+      arm(b,()=>{try{localStorage.removeItem(KEY)}catch(e){}load();db.recipes=[];db.seeded=true;save();applyTheme();location.hash='#/';route();toast('Datos borrados')});
+    }
+  };
+  app.onchange=e=>{
+    const d=e.target.closest('.cat');
+    if(!d)return;
+    const c=db.cats.find(x=>x.id===d.dataset.id);
+    if(!c)return;
+    const t=e.target;
+    if(t.classList.contains('c-emoji'))c.emoji=t.value.trim()||'🍴';
+    else if(t.classList.contains('c-name'))c.name=t.value.trim()||'Sin nombre';
+    else if(t.classList.contains('c-color'))c.color=t.value;
+    else if(t.classList.contains('c-kw'))c.kw=t.value;
+    save();
+    $('.sn',d).textContent=c.emoji+' '+c.name;
+    $('summary .dot',d).style.background=c.color;
+  };
+}
+
+/* ---------- Rutas ---------- */
+function route(){
+  const p=(location.hash.slice(1)||'/').split('/').filter(Boolean);
+  if(p[0]==='r'&&p[1])detail(p[1]);
+  else if(p[0]==='new')editor(null);
+  else if(p[0]==='edit'&&p[1])editor(p[1]);
+  else if(p[0]==='settings')settings();
+  else home();
+}
+window.addEventListener('hashchange',()=>{route();window.scrollTo(0,0)});
+load();applyTheme();route();
+</script>
+</body>
+</html>
